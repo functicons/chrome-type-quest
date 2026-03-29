@@ -496,6 +496,33 @@ body {
   transform: scale(1.15);
 }
 
+.btn-reset {
+  margin-top: 16px;
+  background: none;
+  border: none;
+  color: rgba(255, 71, 87, 0.5);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.btn-reset:hover {
+  color: #FF4757;
+  background: rgba(255, 71, 87, 0.1);
+}
+
+body.light-theme .btn-reset {
+  color: rgba(220, 38, 38, 0.4);
+}
+
+body.light-theme .btn-reset:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
 .form-buttons {
   display: flex;
   gap: 10px;
@@ -528,6 +555,84 @@ body {
 .avatar-circle.small .avatar-emoji { font-size: 14px; }
 .avatar-circle.tiny .avatar-emoji { font-size: 12px; }
 
+/* ===== THEME PICKER ===== */
+.theme-picker {
+  position: relative;
+  z-index: 999;
+}
+
+.theme-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.theme-dot:hover {
+  transform: scale(1.15);
+  border-color: rgba(255,255,255,0.6);
+}
+
+.theme-dot[data-current="dark"]   { background: #1a1136; }
+.theme-dot[data-current="light"]  { background: #f0f0f5; border-color: rgba(0,0,0,0.2); }
+.theme-dot[data-current="yellow"] { background: #fef8d0; border-color: rgba(180,140,0,0.3); }
+
+body.light-theme .theme-dot { border-color: rgba(0,0,0,0.2); }
+body.light-theme .theme-dot:hover { border-color: rgba(0,0,0,0.5); }
+body.yellow-theme .theme-dot { border-color: rgba(120,80,0,0.2); }
+body.yellow-theme .theme-dot:hover { border-color: rgba(120,80,0,0.5); }
+
+.theme-dropdown {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: var(--dark);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 4px;
+  z-index: 999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  min-width: 110px;
+}
+
+body.light-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.theme-option:hover {
+  background: var(--card);
+}
+
+.theme-dot-sm {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+
+.dark-dot   { background: #1a1136; }
+.light-dot  { background: #f0f0f5; border-color: rgba(0,0,0,0.15); }
+.yellow-dot { background: #fef8d0; border-color: rgba(180,140,0,0.25); }
+
 /* ===== MENU SCREEN ===== */
 .header-left {
   display: flex;
@@ -541,7 +646,8 @@ body {
   justify-content: space-between;
   width: 100%;
   margin-bottom: 4px;
-  z-index: 1;
+  z-index: 50;
+  position: relative;
 }
 
 .player-badge {
@@ -1627,6 +1733,16 @@ body.tab-mode .player-btn {
 }
 
 /* Hide fullscreen button when already in tab mode */
+.btn-fullscreen-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-fullscreen-icon svg {
+  display: block;
+}
+
 body.tab-mode #btn-fullscreen {
   display: none;
 }
@@ -1776,5 +1892,140 @@ body.light-theme .lb-score {
 }
 
 body.light-theme .player-btn-score {
+  color: #b8860b;
+}
+
+/* ===== YELLOW THEME ===== */
+body.yellow-theme {
+  --dark: #fffdf5;
+  --darker: #fef9e7;
+  --card: rgba(120, 80, 0, 0.04);
+  --card-border: rgba(120, 80, 0, 0.09);
+  --text: #4a3700;
+  --text-dim: rgba(74, 55, 0, 0.45);
+  background: linear-gradient(135deg, #fffdf5, #fef9e7, #fffbef);
+}
+
+body.yellow-theme #screen-game {
+  background: linear-gradient(180deg, #fef9e7, #fffdf5, #fffbef);
+}
+
+body.yellow-theme .title-bounce {
+  filter: drop-shadow(0 2px 8px rgba(200, 150, 0, 0.2));
+}
+
+body.yellow-theme .btn-primary {
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
+}
+
+body.yellow-theme .btn-start {
+  box-shadow: 0 4px 20px rgba(52, 211, 153, 0.2);
+}
+
+body.yellow-theme .toggle-btn.selected {
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
+}
+
+body.yellow-theme .input-name {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(120, 80, 0, 0.15);
+  color: var(--text);
+}
+
+body.yellow-theme .game-input {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(120, 80, 0, 0.15);
+  color: var(--text);
+}
+
+body.yellow-theme .game-input::placeholder {
+  color: rgba(74, 55, 0, 0.25);
+}
+
+body.yellow-theme .game-hud {
+  background: rgba(255, 253, 240, 0.6);
+}
+
+body.yellow-theme .game-input-area {
+  background: rgba(255, 253, 240, 0.6);
+}
+
+body.yellow-theme .btn-game-ctrl {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(120, 80, 0, 0.1);
+  color: var(--text-dim);
+}
+
+body.yellow-theme .falling-word {
+  box-shadow: 0 3px 10px rgba(100, 70, 0, 0.1);
+}
+
+body.yellow-theme .pause-overlay {
+  background: rgba(255, 253, 245, 0.9);
+}
+
+body.yellow-theme .hud-score {
+  color: #b8860b;
+}
+
+body.yellow-theme .hud-timer {
+  color: #0e7490;
+}
+
+body.yellow-theme .hud-timer.warning {
+  color: #d97706;
+}
+
+body.yellow-theme .hud-timer.critical {
+  color: #dc2626;
+}
+
+body.yellow-theme .best-score {
+  background: linear-gradient(135deg, #d97706, #ea580c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.yellow-theme .stars-bg::before,
+body.yellow-theme .stars-bg::after {
+  display: none;
+}
+
+body.yellow-theme .lb-row.current-player {
+  border-color: var(--purple);
+  background: rgba(168, 85, 247, 0.06);
+}
+
+body.yellow-theme .badge-card.earned {
+  background: rgba(255, 215, 0, 0.12);
+  border-color: rgba(200, 160, 0, 0.3);
+}
+
+body.yellow-theme .player-btn:hover,
+body.yellow-theme .player-btn:focus {
+  background: rgba(168, 85, 247, 0.06);
+}
+
+body.yellow-theme .mascot-body {
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.15);
+}
+
+body.yellow-theme .mascot-eye::after {
+  background: #4a3700;
+}
+
+body.yellow-theme .mascot-mouth.happy {
+  border-bottom-color: #4a3700;
+}
+
+body.yellow-theme .mascot-mouth.sad {
+  border-top-color: #4a3700;
+}
+
+body.yellow-theme .btn-badge-icon,
+body.yellow-theme .badges-label,
+body.yellow-theme .lb-score,
+body.yellow-theme .player-btn-score {
   color: #b8860b;
 }

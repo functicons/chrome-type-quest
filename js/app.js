@@ -147,16 +147,11 @@ const App = (() => {
 
     // Settings
     const settings = await Storage.getSettings();
-    Sounds.setEnabled(settings.sound);
-    updateSoundIcon(settings.sound);
     applyTheme(settings.theme || 'dark');
 
     showScreen('menu');
   }
 
-  function updateSoundIcon(on) {
-    document.getElementById('sound-icon').innerHTML = on ? '&#128266;' : '&#128263;';
-  }
 
   // === GAME ===
   function startGame(duration) {
@@ -527,6 +522,20 @@ const App = (() => {
       showMenu();
     });
 
+    // Reset all data
+    document.getElementById('btn-reset-data').addEventListener('click', async () => {
+      if (confirm('This will delete ALL players, scores, and badges. Are you sure?')) {
+        const isExtension = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+        if (isExtension) {
+          await new Promise(r => chrome.storage.local.remove('typequest', r));
+        } else {
+          localStorage.removeItem('typequest');
+        }
+        await loadWelcomeScreen();
+        showScreen('welcome');
+      }
+    });
+
     document.getElementById('btn-new-player').addEventListener('click', () => {
       document.getElementById('player-select-area').classList.add('hidden');
       document.getElementById('new-player-form').classList.remove('hidden');
@@ -542,7 +551,7 @@ const App = (() => {
     });
 
     // Emoji picker
-    let selectedEmoji = '🚀';
+    let selectedEmoji = '🐶';
     document.getElementById('emoji-picker').addEventListener('click', (e) => {
       const opt = e.target.closest('.emoji-option');
       if (!opt) return;
@@ -716,31 +725,36 @@ const App = (() => {
     });
 
     // Sound toggle
-    document.getElementById('btn-sound-toggle').addEventListener('click', async () => {
-      const settings = await Storage.getSettings();
-      const newVal = !settings.sound;
-      await Storage.updateSettings('sound', newVal);
-      Sounds.setEnabled(newVal);
-      updateSoundIcon(newVal);
+    // Theme picker
+    document.getElementById('btn-theme-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('theme-dropdown').classList.toggle('hidden');
     });
 
-    // Theme toggle
-    document.getElementById('btn-theme-toggle').addEventListener('click', async () => {
-      const settings = await Storage.getSettings();
-      const newTheme = settings.theme === 'light' ? 'dark' : 'light';
-      await Storage.updateSettings('theme', newTheme);
-      applyTheme(newTheme);
+    document.querySelectorAll('.theme-option').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const theme = btn.dataset.theme;
+        await Storage.updateSettings('theme', theme);
+        applyTheme(theme);
+        document.getElementById('theme-dropdown').classList.add('hidden');
+      });
+    });
+
+    // Close dropdown when clicking elsewhere
+    document.addEventListener('click', () => {
+      document.getElementById('theme-dropdown').classList.add('hidden');
     });
   }
 
   function applyTheme(theme) {
+    document.body.classList.remove('light-theme', 'yellow-theme');
     if (theme === 'light') {
       document.body.classList.add('light-theme');
-      document.getElementById('theme-icon').textContent = '🌙';
-    } else {
-      document.body.classList.remove('light-theme');
-      document.getElementById('theme-icon').textContent = '☀';
+    } else if (theme === 'yellow') {
+      document.body.classList.add('yellow-theme');
     }
+    document.getElementById('btn-theme-toggle').setAttribute('data-current', theme);
   }
 
   function escHtml(str) {
