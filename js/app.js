@@ -13,7 +13,7 @@ const App = (() => {
     detectMode();
     setupParticles();
     setupEventListeners();
-    await loadWelcomeScreen();
+    await showMenu();
   }
 
   function detectMode() {
@@ -114,12 +114,6 @@ const App = (() => {
         playerList.appendChild(row);
       }
 
-      // Auto-login last active player
-      const active = await Storage.getActivePlayer();
-      if (active) {
-        await showMenu();
-        return;
-      }
     } else {
       existingArea.classList.add('hidden');
     }
@@ -130,24 +124,26 @@ const App = (() => {
   // === MAIN MENU ===
   async function showMenu() {
     const player = await Storage.getActivePlayer();
-    if (!player) {
-      showScreen('welcome');
-      return;
-    }
-
-    document.getElementById('menu-avatar').style.background = player.color;
-    document.getElementById('menu-emoji').textContent = player.emoji || '🚀';
-    document.getElementById('menu-player-name').textContent = `Hi, ${player.name}!`;
-    const badgeCount = Badges.getBadgeCount(player);
     const totalBadges = Badges.getTotalBadges();
-    document.getElementById('menu-best-score').textContent = player.bestWpm || 0;
 
-    // Badge count in header
-    document.getElementById('menu-badge-count').textContent = '🏅 ' + badgeCount + '/' + totalBadges;
-
-    // Settings
-    const settings = await Storage.getSettings();
-    applyTheme(settings.theme || 'dark');
+    if (player) {
+      document.getElementById('menu-avatar').style.background = player.color;
+      document.getElementById('menu-emoji').textContent = player.emoji || '🚀';
+      document.getElementById('menu-player-name').textContent = `Hi, ${player.name}!`;
+      const badgeCount = Badges.getBadgeCount(player);
+      document.getElementById('menu-best-score').textContent = player.bestWpm || 0;
+      document.getElementById('menu-badge-count').textContent = '🏅 ' + badgeCount + '/' + totalBadges;
+      const settings = await Storage.getSettings();
+      applyTheme(settings.theme || 'dark');
+    } else {
+      // No player yet — show guest defaults
+      document.getElementById('menu-avatar').style.background = '#5CB8FF';
+      document.getElementById('menu-emoji').textContent = '🚀';
+      document.getElementById('menu-player-name').textContent = 'New Player';
+      document.getElementById('menu-best-score').textContent = '0';
+      document.getElementById('menu-badge-count').textContent = '🏅 0/' + totalBadges;
+      applyTheme('dark');
+    }
 
     showScreen('menu');
   }
@@ -622,7 +618,13 @@ const App = (() => {
     });
 
     // Start game button
-    document.getElementById('btn-start-game').addEventListener('click', () => {
+    document.getElementById('btn-start-game').addEventListener('click', async () => {
+      const player = await Storage.getActivePlayer();
+      if (!player) {
+        await loadWelcomeScreen();
+        showScreen('welcome');
+        return;
+      }
       startGame(lastDuration);
     });
 
