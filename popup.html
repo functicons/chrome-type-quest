@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Type Quest</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- WELCOME / PLAYER SELECT SCREEN -->
+  <div id="screen-welcome" class="screen active">
+    <div class="stars-bg"></div>
+    <div class="welcome-header">
+      <h1 class="title-bounce">TYPE QUEST!</h1>
+      <button id="btn-welcome-home" class="btn-icon btn-back hidden" title="Home">&#8962;</button>
+    </div>
+    <div class="mascot" id="mascot-welcome">
+      <div class="mascot-body">
+        <div class="mascot-eye left"></div>
+        <div class="mascot-eye right"></div>
+        <div class="mascot-mouth happy"></div>
+      </div>
+      <div class="mascot-antenna"></div>
+    </div>
+    <div class="welcome-content">
+      <div id="player-select-area">
+        <div id="existing-players" class="hidden">
+          <label class="label">Choose Player:</label>
+          <div id="player-list" class="player-list"></div>
+        </div>
+        <button id="btn-new-player" class="btn btn-primary btn-bounce">New Player</button>
+      </div>
+      <div id="new-player-form" class="hidden">
+        <label class="label">What's your name?</label>
+        <input type="text" id="input-player-name" class="input-name" maxlength="12" placeholder="Type your name..." autocomplete="off">
+        <label class="label">Pick your emoji:</label>
+        <div id="emoji-picker" class="emoji-picker">
+          <button class="emoji-option" data-emoji="&#128640;">&#128640;</button>
+          <button class="emoji-option" data-emoji="&#11088;">&#11088;</button>
+          <button class="emoji-option" data-emoji="&#129412;">&#129412;</button>
+          <button class="emoji-option" data-emoji="&#128049;">&#128049;</button>
+          <button class="emoji-option" data-emoji="&#128060;">&#128060;</button>
+          <button class="emoji-option" data-emoji="&#129418;">&#129418;</button>
+          <button class="emoji-option" data-emoji="&#127804;">&#127804;</button>
+          <button class="emoji-option" data-emoji="&#9889;">&#9889;</button>
+          <button class="emoji-option" data-emoji="&#127752;">&#127752;</button>
+          <button class="emoji-option" data-emoji="&#128142;">&#128142;</button>
+          <button class="emoji-option" data-emoji="&#127942;">&#127942;</button>
+          <button class="emoji-option" data-emoji="&#129332;">&#129332;</button>
+        </div>
+        <label class="label">Pick your color:</label>
+        <div id="color-picker" class="color-picker">
+          <button class="color-dot" data-color="#FF6B9D" style="background:#FF6B9D"></button>
+          <button class="color-dot" data-color="#4ECDC4" style="background:#4ECDC4"></button>
+          <button class="color-dot" data-color="#FFE66D" style="background:#FFE66D"></button>
+          <button class="color-dot" data-color="#A855F7" style="background:#A855F7"></button>
+          <button class="color-dot" data-color="#FF8A5C" style="background:#FF8A5C"></button>
+          <button class="color-dot" data-color="#5CB8FF" style="background:#5CB8FF"></button>
+        </div>
+        <div class="form-buttons">
+          <button id="btn-create-player" class="btn btn-primary">Let's Go!</button>
+          <button id="btn-cancel-new" class="btn btn-secondary">Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MENU SCREEN -->
+  <div id="screen-menu" class="screen">
+    <div class="stars-bg"></div>
+    <div class="menu-header">
+      <div class="player-badge" id="menu-player-badge">
+        <div class="avatar-circle" id="menu-avatar"><span class="avatar-emoji" id="menu-emoji"></span></div>
+        <span id="menu-player-name"></span>
+      </div>
+      <div class="header-actions">
+        <button id="btn-leaderboard" class="btn-icon" title="Leaderboard">&#127942;</button>
+        <button id="btn-fullscreen" class="btn-icon" title="Open in full screen">&#x26F6;</button>
+        <button id="btn-sound-toggle" class="btn-icon btn-sound" title="Toggle Sound">
+          <span id="sound-icon">&#128266;</span>
+        </button>
+      </div>
+    </div>
+    <div class="menu-best">
+      <span class="best-label">Best WPM</span>
+      <span class="best-score" id="menu-best-score">0</span>
+      <span class="best-unit">words/min</span>
+    </div>
+    <div class="menu-section">
+      <span class="section-label">Vocabulary</span>
+      <div class="toggle-group">
+        <button class="toggle-btn selected" data-difficulty="easy">Easy</button>
+        <button class="toggle-btn" data-difficulty="medium">Medium</button>
+        <button class="toggle-btn" data-difficulty="hard">Hard</button>
+      </div>
+    </div>
+    <div class="menu-section">
+      <span class="section-label">Speed</span>
+      <div class="toggle-group">
+        <button class="toggle-btn selected" data-speed="slow">Slow</button>
+        <button class="toggle-btn" data-speed="normal">Normal</button>
+        <button class="toggle-btn" data-speed="fast">Fast</button>
+      </div>
+    </div>
+    <div class="menu-section">
+      <span class="section-label">Time</span>
+      <div class="toggle-group">
+        <button class="toggle-btn selected" data-duration="60">1 Min</button>
+        <button class="toggle-btn" data-duration="120">2 Min</button>
+        <button class="toggle-btn" data-duration="300">5 Min</button>
+      </div>
+    </div>
+    <button id="btn-start-game" class="btn btn-start">
+      <span class="start-icon">&#9654;</span> START GAME
+    </button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="screen-game" class="screen">
+    <div class="game-hud">
+      <div class="hud-left">
+        <span class="hud-label">Score</span>
+        <span class="hud-score" id="game-score">0</span>
+      </div>
+      <div class="hud-center">
+        <span id="game-misses" class="misses">
+          <span class="miss-dot">&#10084;</span>
+          <span class="miss-dot">&#10084;</span>
+          <span class="miss-dot">&#10084;</span>
+        </span>
+        <span id="game-streak" class="streak hidden">
+          <span class="streak-fire">&#128293;</span>
+          <span class="streak-count">0</span>
+        </span>
+        <span id="combo-text" class="combo-text hidden"></span>
+      </div>
+      <div class="hud-right">
+        <span class="hud-label">Time</span>
+        <span class="hud-timer" id="game-timer">1:00</span>
+        <button id="btn-fs-toggle" class="btn-icon btn-fs-toggle hidden" title="Toggle fullscreen">&#x26F6;</button>
+      </div>
+    </div>
+    <div id="game-area" class="game-area">
+      <canvas id="particles-canvas"></canvas>
+    </div>
+    <div class="game-input-area">
+      <div class="input-row">
+        <button id="btn-pause" class="btn-game-ctrl" title="Pause">&#10074;&#10074;</button>
+        <div class="input-wrapper">
+          <input type="text" id="game-input" class="game-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type the words!">
+        </div>
+        <button id="btn-stop" class="btn-game-ctrl btn-stop-ctrl" title="Quit to menu">&#9632;</button>
+      </div>
+    </div>
+    <!-- Pause overlay -->
+    <div id="pause-overlay" class="pause-overlay hidden">
+      <div class="pause-content">
+        <h2 class="pause-title">PAUSED</h2>
+        <button id="btn-resume" class="btn btn-primary btn-bounce">Resume</button>
+        <button id="btn-quit" class="btn btn-secondary">&#8962; Quit to Home</button>
+      </div>
+    </div>
+    <div class="mini-mascot" id="mascot-game">
+      <div class="mascot-body tiny">
+        <div class="mascot-eye left"></div>
+        <div class="mascot-eye right"></div>
+        <div class="mascot-mouth happy"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="screen-gameover" class="screen">
+    <div class="stars-bg"></div>
+    <canvas id="gameover-particles"></canvas>
+    <h2 id="gameover-title" class="gameover-title">GREAT JOB!</h2>
+    <div id="new-highscore" class="new-highscore hidden">
+      <span>&#127775; NEW HIGH SCORE! &#127775;</span>
+    </div>
+    <div class="gameover-score">
+      <span class="gameover-score-num" id="gameover-score">0</span>
+      <div class="star-rating" id="gameover-stars"></div>
+    </div>
+    <div class="gameover-rate">
+      <span class="rate-value" id="gameover-wpm">0</span>
+      <span class="rate-unit">words/min</span>
+    </div>
+    <div class="gameover-stats">
+      <div class="stat-row">
+        <span class="stat-label">Words Typed</span>
+        <span class="stat-value" id="stat-words">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Accuracy</span>
+        <span class="stat-value" id="stat-accuracy">0%</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Longest Streak</span>
+        <span class="stat-value" id="stat-streak">0</span>
+      </div>
+    </div>
+    <div class="gameover-buttons">
+      <button id="btn-play-again" class="btn btn-primary btn-bounce">Play Again</button>
+      <button id="btn-main-menu" class="btn btn-secondary">&#8962; Home</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="stars-bg"></div>
+    <div class="leaderboard-header">
+      <h2 class="leaderboard-title">&#127942; Leaderboard</h2>
+      <button id="btn-back-menu" class="btn-icon btn-back" title="Home">&#8962;</button>
+    </div>
+    <div class="leaderboard-tabs">
+      <button class="tab-btn active" data-tab="all">All Players</button>
+      <button class="tab-btn" data-tab="history">My History</button>
+    </div>
+    <div id="tab-all" class="tab-content active">
+      <div id="leaderboard-list" class="leaderboard-list"></div>
+    </div>
+    <div id="tab-history" class="tab-content">
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </div>
+
+  <script src="js/words.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
