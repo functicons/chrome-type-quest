@@ -145,10 +145,11 @@ const App = (() => {
     // Badge count in header
     document.getElementById('menu-badge-count').textContent = '🏅 ' + badgeCount + '/' + totalBadges;
 
-    // Sound state
+    // Settings
     const settings = await Storage.getSettings();
     Sounds.setEnabled(settings.sound);
     updateSoundIcon(settings.sound);
+    applyTheme(settings.theme || 'dark');
 
     showScreen('menu');
   }
@@ -722,6 +723,24 @@ const App = (() => {
       Sounds.setEnabled(newVal);
       updateSoundIcon(newVal);
     });
+
+    // Theme toggle
+    document.getElementById('btn-theme-toggle').addEventListener('click', async () => {
+      const settings = await Storage.getSettings();
+      const newTheme = settings.theme === 'light' ? 'dark' : 'light';
+      await Storage.updateSettings('theme', newTheme);
+      applyTheme(newTheme);
+    });
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+      document.getElementById('theme-icon').textContent = '🌙';
+    } else {
+      document.body.classList.remove('light-theme');
+      document.getElementById('theme-icon').textContent = '☀';
+    }
   }
 
   function escHtml(str) {
