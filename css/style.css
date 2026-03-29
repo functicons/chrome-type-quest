@@ -1,8 +1,12 @@
 /* ===== BASE ===== */
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 :root {
@@ -29,7 +33,7 @@ html, body {
 body {
   width: 420px;
   height: 700px;
-  font-family: 'Segoe UI', system-ui, -apple-system, 'Comic Sans MS', sans-serif;
+  font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: linear-gradient(135deg, var(--dark), #1e1145, var(--darker));
   color: var(--text);
   user-select: none;
