@@ -69,9 +69,12 @@
   <div id="screen-menu" class="screen">
     <div class="stars-bg"></div>
     <div class="menu-header">
-      <div class="player-badge" id="menu-player-badge">
-        <div class="avatar-circle" id="menu-avatar"><span class="avatar-emoji" id="menu-emoji"></span></div>
-        <span id="menu-player-name"></span>
+      <div class="header-left">
+        <div class="player-badge" id="menu-player-badge">
+          <div class="avatar-circle" id="menu-avatar"><span class="avatar-emoji" id="menu-emoji"></span></div>
+          <span id="menu-player-name"></span>
+        </div>
+        <button id="btn-badges" class="btn-icon btn-badge-icon" title="Badges"><span id="menu-badge-count">&#127941; 0</span></button>
       </div>
       <div class="header-actions">
         <button id="btn-leaderboard" class="btn-icon" title="Leaderboard">&#127942;</button>
@@ -199,6 +202,14 @@
         <span class="stat-value" id="stat-streak">0</span>
       </div>
     </div>
+    <div id="gameover-badges" class="gameover-badges hidden">
+      <span class="badges-label">Badges Earned!</span>
+      <div id="gameover-badge-list" class="gameover-badge-list"></div>
+    </div>
+    <div id="gameover-progress" class="gameover-progress hidden">
+      <span class="progress-label" id="progress-label"></span>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
     <div class="gameover-buttons">
       <button id="btn-play-again" class="btn btn-primary btn-bounce">Play Again</button>
       <button id="btn-main-menu" class="btn btn-secondary">&#8962; Home</button>
@@ -224,7 +235,19 @@
     </div>
   </div>
 
+  <!-- BADGE SHOWCASE SCREEN -->
+  <div id="screen-badges" class="screen">
+    <div class="stars-bg"></div>
+    <div class="leaderboard-header">
+      <h2 class="leaderboard-title">&#127941; Badges</h2>
+      <button id="btn-badges-home" class="btn-icon btn-back" title="Home">&#8962;</button>
+    </div>
+    <div class="badge-count-header" id="badge-count-header">0 / 16</div>
+    <div class="badge-showcase" id="badge-showcase"></div>
+  </div>
+
   <script src="js/words.js"></script>
+  <script src="js/badges.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/sounds.js"></script>

@@ -43,6 +43,10 @@ const Storage = (() => {
         p.bestDuration = null;
         needsSave = true;
       }
+      if (!p.badges) {
+        p.badges = {};
+        needsSave = true;
+      }
     }
     if (needsSave) await save(data);
     return data.players || {};
@@ -72,6 +76,7 @@ const Storage = (() => {
       bestDuration: null,
       gamesPlayed: 0,
       totalWordsTyped: 0,
+      badges: {},
       settings: { sound: true }
     };
     data.activePlayerId = id;
@@ -113,16 +118,31 @@ const Storage = (() => {
       data.gameHistory = data.gameHistory.slice(-100);
     }
 
+    // Check badges before updating stats
+    if (!player.badges) player.badges = {};
+    const newBadges = Badges.checkNewBadges(player, result);
+    const now = Date.now();
+    for (const badgeId of newBadges) {
+      player.badges[badgeId] = { earned: true, date: now };
+    }
+
+    // Check if beating global #1
+    const allPlayers = Object.values(data.players);
+    const currentGlobalBest = Math.max(...allPlayers.map(p => p.bestWpm || 0));
+    const isGlobalRecord = result.wpm > currentGlobalBest;
+
+    // Update player stats
     player.gamesPlayed++;
     player.totalWordsTyped += result.wordsTyped;
+    let isPersonalBest = false;
     if (result.wpm > (player.bestWpm || 0)) {
       player.bestWpm = result.wpm;
       player.bestDuration = result.duration;
-      await save(data);
-      return true; // new best rate!
+      isPersonalBest = true;
     }
     await save(data);
-    return false;
+
+    return { isPersonalBest, isGlobalRecord, newBadges };
   }
 
   async function getLeaderboard() {

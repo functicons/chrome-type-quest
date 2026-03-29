@@ -86,7 +86,7 @@ const App = (() => {
         btn.innerHTML = `
           <span class="avatar-circle small" style="background:${p.color}"><span class="avatar-emoji">${p.emoji || '🚀'}</span></span>
           <span class="player-btn-name">${escHtml(p.name)}</span>
-          <span class="player-btn-score">${p.bestWpm || p.bestScore || 0} wpm</span>
+          <span class="player-btn-score">🏅${Badges.getBadgeCount(p)} · ${p.bestWpm || 0} wpm</span>
         `;
         btn.addEventListener('click', async () => {
           await Storage.setActivePlayer(id);
@@ -138,7 +138,12 @@ const App = (() => {
     document.getElementById('menu-avatar').style.background = player.color;
     document.getElementById('menu-emoji').textContent = player.emoji || '🚀';
     document.getElementById('menu-player-name').textContent = `Hi, ${player.name}!`;
+    const badgeCount = Badges.getBadgeCount(player);
+    const totalBadges = Badges.getTotalBadges();
     document.getElementById('menu-best-score').textContent = player.bestWpm || 0;
+
+    // Badge count in header
+    document.getElementById('menu-badge-count').textContent = '🏅 ' + badgeCount + '/' + totalBadges;
 
     // Sound state
     const settings = await Storage.getSettings();
@@ -286,20 +291,69 @@ const App = (() => {
   async function showGameOver(result) {
     showScreen('gameover');
 
-    const isHighScore = await Storage.saveGameResult(result);
+    // Reset progress bar
+    document.getElementById('progress-fill').style.width = '0%';
+
+    const saveResult = await Storage.saveGameResult(result);
+    const { isPersonalBest, isGlobalRecord, newBadges } = saveResult;
 
     // Title
     const title = document.getElementById('gameover-title');
-    title.textContent = result.wordsMissed >= 3 ? "3 MISSES!" : "TIME'S UP!";
+    if (isGlobalRecord) {
+      title.textContent = 'GLOBAL CHAMPION!';
+    } else if (result.wordsMissed >= 3) {
+      title.textContent = '3 MISSES!';
+    } else {
+      title.textContent = "TIME'S UP!";
+    }
 
-    // High score banner
+    // High score / record banner
     const hsEl = document.getElementById('new-highscore');
-    if (isHighScore) {
+    if (isGlobalRecord) {
       hsEl.classList.remove('hidden');
-      hsEl.querySelector('span').innerHTML = '&#127775; NEW BEST WPM! &#127775;';
+      hsEl.querySelector('span').innerHTML = '&#127775; NEW #1 RECORD! &#127775;';
+      Sounds.play('highscore');
+    } else if (isPersonalBest) {
+      hsEl.classList.remove('hidden');
+      hsEl.querySelector('span').innerHTML = '&#127775; NEW PERSONAL BEST! &#127775;';
       Sounds.play('highscore');
     } else {
       hsEl.classList.add('hidden');
+    }
+
+    // New badges earned
+    const badgesEl = document.getElementById('gameover-badges');
+    const badgeListEl = document.getElementById('gameover-badge-list');
+    if (newBadges.length > 0) {
+      badgesEl.classList.remove('hidden');
+      badgeListEl.innerHTML = '';
+      newBadges.forEach((id, i) => {
+        const badge = BADGES[id];
+        const item = document.createElement('div');
+        item.className = 'gameover-badge-item';
+        item.style.animationDelay = (i * 0.15) + 's';
+        item.innerHTML = `<span class="badge-icon">${badge.icon}</span><span class="badge-name">${badge.name}</span>`;
+        badgeListEl.appendChild(item);
+      });
+    } else {
+      badgesEl.classList.add('hidden');
+    }
+
+    // Next badge progress
+    const player = await Storage.getActivePlayer();
+    const nextBadge = Badges.getNextBadgeProgress(player, result);
+    const progressEl = document.getElementById('gameover-progress');
+    if (nextBadge) {
+      progressEl.classList.remove('hidden');
+      const badge = BADGES[nextBadge.id];
+      const pct = Math.round((nextBadge.current / nextBadge.target) * 100);
+      document.getElementById('progress-label').textContent =
+        `Next: ${badge.icon} ${badge.name} — ${nextBadge.current}/${nextBadge.target} ${nextBadge.unit}`;
+      setTimeout(() => {
+        document.getElementById('progress-fill').style.width = Math.min(pct, 99) + '%';
+      }, 300);
+    } else {
+      progressEl.classList.add('hidden');
     }
 
     // Animate score counting up
@@ -350,6 +404,53 @@ const App = (() => {
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
+  }
+
+  // === BADGE SHOWCASE ===
+  async function showBadgeShowcase() {
+    showScreen('badges');
+    const player = await Storage.getActivePlayer();
+    if (!player) return;
+
+    const tiers = Badges.getBadgesByTier(player);
+    const count = Badges.getBadgeCount(player);
+    const total = Badges.getTotalBadges();
+
+    document.getElementById('badge-count-header').textContent = count + ' / ' + total + ' earned';
+
+    const showcase = document.getElementById('badge-showcase');
+    showcase.innerHTML = '';
+
+    for (const [tierName, badges] of Object.entries(tiers)) {
+      const section = document.createElement('div');
+      section.className = 'badge-tier-section';
+
+      const label = document.createElement('div');
+      label.className = 'badge-tier-label ' + tierName;
+      label.textContent = tierName.charAt(0).toUpperCase() + tierName.slice(1);
+      section.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'badge-grid';
+
+      for (const badge of badges) {
+        const card = document.createElement('div');
+        card.className = 'badge-card ' + (badge.earned ? 'earned' : 'locked');
+        let html = `<span class="badge-card-icon">${badge.icon}</span>`;
+        html += `<span class="badge-card-name">${badge.name}</span>`;
+        if (!badge.earned) {
+          html += `<span class="badge-card-hint">${badge.desc}</span>`;
+        } else {
+          const d = new Date(badge.date);
+          html += `<span class="badge-card-hint">${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`;
+        }
+        card.innerHTML = html;
+        grid.appendChild(card);
+      }
+
+      section.appendChild(grid);
+      showcase.appendChild(section);
+    }
   }
 
   // === LEADERBOARD ===
@@ -518,6 +619,10 @@ const App = (() => {
     // Leaderboard
     document.getElementById('btn-leaderboard').addEventListener('click', showLeaderboard);
     document.getElementById('btn-back-menu').addEventListener('click', showMenu);
+
+    // Badges
+    document.getElementById('btn-badges').addEventListener('click', showBadgeShowcase);
+    document.getElementById('btn-badges-home').addEventListener('click', showMenu);
 
     // Leaderboard tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
