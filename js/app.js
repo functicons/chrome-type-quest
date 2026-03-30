@@ -168,7 +168,6 @@ const App = (() => {
 
     const input = document.getElementById('game-input');
     input.value = '';
-    input.focus();
 
     if (particles) {
       particles.clear();
@@ -261,7 +260,37 @@ const App = (() => {
       await showGameOver(result);
     };
 
-    game.start(duration, selectedDifficulty, selectedSpeed);
+    // 3-second countdown before game starts
+    runCountdown(['3', '2', '1', 'GO!'], () => {
+      input.focus();
+      game.start(duration, selectedDifficulty, selectedSpeed);
+    });
+  }
+
+  function runCountdown(steps, onDone) {
+    const overlay = document.getElementById('countdown-overlay');
+    const numEl = document.getElementById('countdown-number');
+    overlay.classList.remove('hidden');
+
+    let i = 0;
+    function showStep() {
+      if (i >= steps.length) {
+        overlay.classList.add('hidden');
+        onDone();
+        return;
+      }
+      const label = steps[i];
+      numEl.textContent = label;
+      numEl.className = 'countdown-number' + (label === 'GO!' ? ' go-text' : '');
+      // Force reflow to restart animation
+      void numEl.offsetWidth;
+      numEl.style.animation = 'none';
+      void numEl.offsetWidth;
+      numEl.style.animation = '';
+      i++;
+      setTimeout(showStep, 900);
+    }
+    showStep();
   }
 
   function formatTimer(el, seconds) {
