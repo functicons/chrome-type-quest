@@ -456,7 +456,7 @@ const App = (() => {
       gameoverParticles.canvas.width = gameoverParticles.canvas.parentElement.offsetWidth;
       gameoverParticles.canvas.height = gameoverParticles.canvas.parentElement.offsetHeight;
       setTimeout(() => gameoverParticles.spawnExplosion(60), 300);
-      if (isHighScore) {
+      if (isPersonalBest || isGlobalRecord) {
         setTimeout(() => gameoverParticles.spawnExplosion(40), 800);
         setTimeout(() => gameoverParticles.spawnExplosion(40), 1300);
       }
