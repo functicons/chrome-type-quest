@@ -237,12 +237,32 @@ const App = (() => {
     };
 
     game.onWordComplete = (word) => {
+      const px = word.x + (word.text.length * 9);
+      const py = word.y;
+      const streak = game.streak;
+
       if (particles) {
-        const px = word.x + (word.text.length * 9);
-        const py = word.y;
-        particles.spawnConfetti(px, py, 12);
-        particles.spawnStars(px, py, 5);
+        if (streak >= 10) {
+          // LEGENDARY — firework + ribbons + confetti shower
+          particles.spawnFirework(px, py);
+          particles.spawnRibbons(px, py, 18);
+          particles.spawnConfetti(px, py, 20);
+        } else if (streak >= 5) {
+          // ON FIRE — firework + golden stars
+          particles.spawnFirework(px, py);
+          particles.spawnStars(px, py, 10);
+        } else if (streak >= 3) {
+          // NICE — confetti + expanding ring in word's own colour
+          particles.spawnConfetti(px, py, 16);
+          particles.spawnRing(px, py, word.color, 18);
+        } else {
+          // Standard — confetti + a few stars
+          particles.spawnConfetti(px, py, 12);
+          particles.spawnStars(px, py, 5);
+        }
       }
+
+      spawnWordFloat(word);
     };
 
     game.onCombo = (text) => {
@@ -291,6 +311,20 @@ const App = (() => {
       setTimeout(showStep, 900);
     }
     showStep();
+  }
+
+  // Floating word ghost — the completed word flies upward briefly
+  function spawnWordFloat(word) {
+    const gameArea = document.getElementById('game-area');
+    if (!gameArea) return;
+    const el = document.createElement('div');
+    el.className = 'word-float';
+    el.textContent = '✓ ' + word.text;
+    el.style.left = word.x + 'px';
+    el.style.top = word.y + 'px';
+    el.style.color = word.color;
+    gameArea.appendChild(el);
+    setTimeout(() => el.remove(), 900);
   }
 
   function formatTimer(el, seconds) {

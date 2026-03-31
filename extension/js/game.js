@@ -335,6 +335,7 @@ class Game {
     const gameArea = document.getElementById('game-area');
     if (!gameArea) return;
 
+    const areaHeight = gameArea.offsetHeight;
     gameArea.querySelectorAll('.falling-word').forEach(el => el.remove());
 
     for (const w of this.words) {
@@ -342,6 +343,8 @@ class Game {
       el.className = 'falling-word';
       if (w.shaking) el.classList.add('shake');
       if (w.highlight) el.classList.add('active-word');
+      if (w.y > areaHeight * 0.68) el.classList.add('word-danger');
+      if (w.y > areaHeight * 0.84) el.classList.add('word-critical');
 
       el.style.left = w.x + 'px';
       el.style.top = w.y + 'px';

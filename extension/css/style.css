@@ -1024,6 +1024,57 @@ body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
   80% { transform: translateX(4px); }
 }
 
+/* Danger zone — word approaching the bottom */
+.falling-word.word-danger::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 24px;
+  border: 2px solid rgba(255, 60, 60, 0.75);
+  animation: danger-ring-pulse 0.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes danger-ring-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.7; }
+  50%       { transform: scale(1.06); opacity: 1;   }
+}
+
+/* Critical zone — last ~15% before the bottom, more urgent */
+.falling-word.word-critical {
+  filter: brightness(1.15);
+}
+
+.falling-word.word-critical::after {
+  border-color: rgba(255, 30, 30, 1);
+  border-width: 3px;
+  animation: critical-ring-pulse 0.28s ease-in-out infinite;
+}
+
+@keyframes critical-ring-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.8; }
+  50%       { transform: scale(1.1);  opacity: 1;   }
+}
+
+/* Word float — completed word flies up and fades */
+.word-float {
+  position: absolute;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  animation: word-float-up 0.9s ease-out forwards;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+
+@keyframes word-float-up {
+  0%   { transform: translateY(0)    scale(1.15); opacity: 1; }
+  60%  { transform: translateY(-40px) scale(1);   opacity: 0.9; }
+  100% { transform: translateY(-70px) scale(0.8); opacity: 0; }
+}
+
 /* Game input */
 .game-input-area {
   width: 100%;
