@@ -242,23 +242,36 @@ const App = (() => {
       const streak = game.streak;
 
       if (particles) {
-        if (streak >= 10) {
-          // LEGENDARY — firework + ribbons + confetti shower
-          particles.spawnFirework(px, py);
-          particles.spawnRibbons(px, py, 18);
-          particles.spawnConfetti(px, py, 20);
-        } else if (streak >= 5) {
-          // ON FIRE — firework + golden stars
-          particles.spawnFirework(px, py);
-          particles.spawnStars(px, py, 10);
-        } else if (streak >= 3) {
-          // NICE — confetti + expanding ring in word's own colour
-          particles.spawnConfetti(px, py, 16);
-          particles.spawnRing(px, py, word.color, 18);
-        } else {
-          // Standard — confetti + a few stars
-          particles.spawnConfetti(px, py, 12);
-          particles.spawnStars(px, py, 5);
+        // Intensity scales with streak, capped so it doesn't go wild
+        const intensity = 1 + Math.min(streak, 12) * 0.12;
+        const cc = Math.round(12 * intensity); // confetti count
+        const sc = Math.round(5  * intensity); // star count
+        const rc = Math.round(10 * intensity); // ribbon count
+        const rg = Math.round(14 * intensity); // ring count
+
+        // 8 distinct recipes — one is picked at random every time
+        const recipes = [
+          () => { particles.spawnConfetti(px, py, cc); particles.spawnStars(px, py, sc); },
+          () => { particles.spawnRing(px, py, word.color, rg); particles.spawnStars(px, py, 4); },
+          () => { particles.spawnFirework(px, py); },
+          () => { particles.spawnRibbons(px, py, rc); particles.spawnStars(px, py, sc); },
+          () => { particles.spawnConfetti(px, py, cc); particles.spawnRing(px, py, word.color, Math.round(rg * 0.7)); },
+          () => { particles.spawnFirework(px, py); particles.spawnRing(px, py, word.color, 12); },
+          () => { particles.spawnRibbons(px, py, rc); particles.spawnConfetti(px, py, Math.round(cc * 0.6)); },
+          () => { particles.spawnStars(px, py, sc * 2); particles.spawnRing(px, py, word.color, 10); particles.spawnRing(px, py, '#FFE66D', 8); },
+        ];
+        recipes[Math.floor(Math.random() * recipes.length)]();
+
+        // Bonus effect — chance grows with streak, also random
+        const bonusChance = streak >= 10 ? 1.0 : streak >= 5 ? 0.65 : streak >= 3 ? 0.35 : 0;
+        if (Math.random() < bonusChance) {
+          const bonuses = [
+            () => particles.spawnStars(px, py, 6),
+            () => particles.spawnRing(px, py, '#ffffff', 10),
+            () => particles.spawnConfetti(px, py, 10),
+            () => particles.spawnRibbons(px, py, 6),
+          ];
+          bonuses[Math.floor(Math.random() * bonuses.length)]();
         }
       }
 
