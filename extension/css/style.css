@@ -1728,7 +1728,7 @@ body.tab-mode .btn {
 
 /* Fixed-width centered game column in tab mode */
 body.tab-mode #screen-game {
-  max-width: 700px;
+  max-width: 900px;
   width: 100%;
   padding: 0;
 }
