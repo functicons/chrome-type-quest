@@ -107,8 +107,14 @@ class Game {
     const maxX = Math.max(minX, areaWidth - wordWidth - 15);
     let x = minX + Math.random() * (maxX - minX);
 
-    for (let i = 0; i < 5; i++) {
-      const overlaps = this.words.some(w => Math.abs(w.x - x) < wordWidth && w.y < 60);
+    // Proper bounding-box overlap check across all words near the top
+    for (let i = 0; i < 20; i++) {
+      const overlaps = this.words.some(w => {
+        const wW = w.text.length * 18 + 30 + (getWordEmoji(w.text) ? 28 : 0);
+        const hOverlap = x < w.x + wW + 10 && x + wordWidth + 10 > w.x;
+        const vClose   = w.y < 100;
+        return hOverlap && vClose;
+      });
       if (!overlaps) break;
       x = minX + Math.random() * (maxX - minX);
     }
@@ -119,7 +125,7 @@ class Game {
       y: -10,
       typed: 0,
       color: this.wordColors[Math.floor(Math.random() * this.wordColors.length)],
-      speed: conf.fallSpeed * (0.85 + Math.random() * 0.3),
+      speed: conf.fallSpeed * (0.90 + Math.random() * 0.20), // tighter range → less catch-up
       shaking: false,
       shakeTime: 0,
       highlight: false
@@ -156,6 +162,7 @@ class Game {
     const speedMult = this.getSpeedMultiplier();
     const gameArea = document.getElementById('game-area');
     const areaHeight = gameArea ? gameArea.offsetHeight : 400;
+    const areaWidth  = gameArea ? gameArea.offsetWidth  : 400;
 
     // Move words down
     for (let i = this.words.length - 1; i >= 0; i--) {
@@ -182,6 +189,27 @@ class Game {
         if (this.wordsMissed >= 3) {
           this.endGame();
           return;
+        }
+      }
+    }
+
+    // Gently push apart words that overlap horizontally at similar heights
+    for (let i = 0; i < this.words.length; i++) {
+      for (let j = i + 1; j < this.words.length; j++) {
+        const a = this.words[i];
+        const b = this.words[j];
+        if (Math.abs(a.y - b.y) > 55) continue;
+        const aW = a.text.length * 18 + 30 + (getWordEmoji(a.text) ? 28 : 0);
+        const bW = b.text.length * 18 + 30 + (getWordEmoji(b.text) ? 28 : 0);
+        const overlap = Math.min(a.x + aW + 10 - b.x, b.x + bW + 10 - a.x);
+        if (overlap <= 0) continue;
+        const push = Math.min(overlap / 2 + 1, 4); // cap push per frame to avoid jitter
+        if (a.x < b.x) {
+          a.x = Math.max(15, a.x - push);
+          b.x = Math.min(areaWidth - bW - 15, b.x + push);
+        } else {
+          a.x = Math.min(areaWidth - aW - 15, a.x + push);
+          b.x = Math.max(15, b.x - push);
         }
       }
     }
