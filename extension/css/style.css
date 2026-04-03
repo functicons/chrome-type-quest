@@ -1513,8 +1513,7 @@ body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
 
 /* ===== PET SHOP ===== */
 #screen-petstore {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 .petstore-wallet {
   display: flex;
@@ -1565,9 +1564,52 @@ body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
   gap: 10px;
   width: 100%;
   flex: 1;
-  overflow-y: auto;
-  padding-bottom: 16px;
+  overflow: hidden;
   z-index: 1;
+  align-content: start;
+}
+
+.petstore-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0 4px;
+  z-index: 1;
+}
+
+.btn-pager {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-pager:hover:not(:disabled) {
+  background: var(--purple);
+  transform: scale(1.1);
+}
+
+.btn-pager:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pager-info {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  min-width: 40px;
+  text-align: center;
 }
 
 .petstore-empty {
@@ -2214,6 +2256,23 @@ body.light-theme .btn-badge-icon {
   color: #b8860b;
 }
 
+body.light-theme .pet-price {
+  color: #b8860b;
+}
+
+body.light-theme .wallet-coins {
+  color: #b8860b;
+}
+
+body.light-theme .coins-earned-value {
+  color: #b8860b;
+}
+
+body.light-theme .gameover-coins {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.25);
+}
+
 body.light-theme .badges-label {
   color: #b8860b;
 }
@@ -2373,4 +2432,15 @@ body.yellow-theme .badges-label,
 body.yellow-theme .lb-score,
 body.yellow-theme .player-btn-score {
   color: #b8860b;
+}
+
+body.yellow-theme .pet-price,
+body.yellow-theme .wallet-coins,
+body.yellow-theme .coins-earned-value {
+  color: #b8860b;
+}
+
+body.yellow-theme .gameover-coins {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.25);
 }

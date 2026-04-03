@@ -388,7 +388,7 @@ const App = (() => {
     // Enable pet shop button (one visit per game)
     const petBtn = document.getElementById('btn-gameover-petshop');
     petBtn.disabled = false;
-    petBtn.textContent = '\uD83D\uDC3E Pet Shop';
+    petBtn.textContent = '\uD83D\uDED2 Pet Shop';
 
     // Title
     const title = document.getElementById('gameover-title');
@@ -547,13 +547,16 @@ const App = (() => {
   }
 
   // === PET SHOP ===
-  let petStoreReturnScreen = 'menu'; // where the back button goes
+  let petStoreReturnScreen = 'menu';
+  let petPage = 0;
+  const PETS_PER_PAGE = 6;
 
   async function showPetStore(fromScreen) {
     if (fromScreen) petStoreReturnScreen = fromScreen;
     else if (currentScreen === 'gameover') petStoreReturnScreen = 'gameover';
     else petStoreReturnScreen = 'menu';
 
+    petPage = 0;
     showScreen('petstore');
     await refreshPetStore();
   }
@@ -568,16 +571,27 @@ const App = (() => {
 
     const activeTab = document.querySelector('#screen-petstore .tab-btn.active');
     const tab = activeTab ? activeTab.dataset.petTab : 'shop';
-    renderPetGrid(tab, owned, coins, active);
+    const list = tab === 'owned' ? PETS.filter(p => owned.includes(p.id)) : PETS;
+
+    const totalPages = Math.max(1, Math.ceil(list.length / PETS_PER_PAGE));
+    if (petPage >= totalPages) petPage = totalPages - 1;
+
+    const start = petPage * PETS_PER_PAGE;
+    const pageItems = list.slice(start, start + PETS_PER_PAGE);
+
+    renderPetGrid(pageItems, owned, coins, active);
+
+    // Update pager
+    document.getElementById('petstore-prev').disabled = petPage <= 0;
+    document.getElementById('petstore-next').disabled = petPage >= totalPages - 1;
+    document.getElementById('petstore-page-info').textContent = (petPage + 1) + ' / ' + totalPages;
   }
 
-  function renderPetGrid(tab, owned, coins, activePetId) {
+  function renderPetGrid(pageItems, owned, coins, activePetId) {
     const grid = document.getElementById('petstore-grid');
     grid.innerHTML = '';
 
-    const list = tab === 'owned' ? PETS.filter(p => owned.includes(p.id)) : PETS;
-
-    if (list.length === 0) {
+    if (pageItems.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'petstore-empty';
       empty.textContent = 'No pets yet — play games to earn coins!';
@@ -585,7 +599,7 @@ const App = (() => {
       return;
     }
 
-    list.forEach(pet => {
+    pageItems.forEach(pet => {
       const isOwned   = owned.includes(pet.id);
       const isActive  = activePetId === pet.id;
       const canAfford = coins >= pet.price;
@@ -611,10 +625,9 @@ const App = (() => {
         <div class="pet-emoji">${pet.emoji}</div>
         <div class="pet-name">${pet.name}</div>
         <div class="pet-rarity" data-rarity="${pet.rarity}">${cfg.label}</div>
-        <div class="pet-price">&#129689; ${pet.price.toLocaleString()}</div>
+        <div class="pet-price">&#128176; ${pet.price.toLocaleString()}</div>
         ${btnHtml}`;
 
-      // Buy handler
       const buyBtn = card.querySelector('[data-buy]');
       if (buyBtn) {
         buyBtn.addEventListener('click', async () => {
@@ -626,7 +639,6 @@ const App = (() => {
         });
       }
 
-      // Equip handler
       const equipBtn = card.querySelector('[data-equip]');
       if (equipBtn) {
         equipBtn.addEventListener('click', async () => {
@@ -842,8 +854,18 @@ const App = (() => {
       btn.addEventListener('click', async () => {
         document.querySelectorAll('#screen-petstore .tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        petPage = 0;
         await refreshPetStore();
       });
+    });
+
+    // Pet store pager
+    document.getElementById('petstore-prev').addEventListener('click', async () => {
+      if (petPage > 0) { petPage--; await refreshPetStore(); }
+    });
+    document.getElementById('petstore-next').addEventListener('click', async () => {
+      petPage++;
+      await refreshPetStore();
     });
 
     // Pet shop (from game over — one visit per game)

@@ -96,7 +96,7 @@
         <button id="btn-badges" class="btn-icon btn-badge-icon" title="Badges"><span id="menu-badge-count">&#127941; 0</span></button>
       </div>
       <div class="header-actions">
-        <button id="btn-pet-shop" class="btn-icon" title="Pet Shop">&#128062;</button>
+        <button id="btn-pet-shop" class="btn-icon" title="Pet Shop">&#128722;</button>
         <button id="btn-leaderboard" class="btn-icon" title="Leaderboard">&#127942;</button>
         <div class="theme-picker">
           <button id="btn-theme-toggle" class="theme-dot" title="Change theme"></button>
@@ -243,14 +243,14 @@
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     </div>
     <div id="gameover-coins" class="gameover-coins">
-      <span class="coins-earned-icon">&#129689;</span>
+      <span class="coins-earned-icon">&#128176;</span>
       <span class="coins-earned-label">+</span>
       <span id="coins-earned-value" class="coins-earned-value">0</span>
       <span class="coins-earned-label">coins earned!</span>
     </div>
     <div class="gameover-buttons">
       <button id="btn-play-again" class="btn btn-primary btn-bounce">Play Again</button>
-      <button id="btn-gameover-petshop" class="btn btn-pet-shop-go">&#128062; Pet Shop</button>
+      <button id="btn-gameover-petshop" class="btn btn-pet-shop-go">&#128722; Pet Shop</button>
       <button id="btn-main-menu" class="btn btn-secondary">&#8962; Home</button>
     </div>
   </div>
@@ -278,11 +278,11 @@
   <div id="screen-petstore" class="screen">
     <div class="stars-bg"></div>
     <div class="leaderboard-header">
-      <h2 class="leaderboard-title">&#128062; Pet Shop</h2>
+      <h2 class="leaderboard-title">&#127978; Pet Shop</h2>
       <button id="btn-petstore-home" class="btn-icon btn-back" title="Home">&#8962;</button>
     </div>
     <div class="petstore-wallet">
-      <span class="wallet-icon">&#129689;</span>
+      <span class="wallet-icon">&#128176;</span>
       <span id="petstore-coins" class="wallet-coins">0</span>
       <span class="wallet-label">coins</span>
       <span class="wallet-hint">(earn coins by playing!)</span>
@@ -292,6 +292,11 @@
       <button class="tab-btn" data-pet-tab="owned">My Pets</button>
     </div>
     <div id="petstore-grid" class="petstore-grid"></div>
+    <div class="petstore-pager">
+      <button id="petstore-prev" class="btn-pager" disabled>&#8249;</button>
+      <span id="petstore-page-info" class="pager-info">1 / 1</span>
+      <button id="petstore-next" class="btn-pager" disabled>&#8250;</button>
+    </div>
   </div>
 
   <!-- BADGE SHOWCASE SCREEN -->
