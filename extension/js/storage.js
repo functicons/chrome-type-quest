@@ -35,18 +35,14 @@ const Storage = (() => {
 
   async function getPlayers() {
     const data = await load();
-    // Migrate old players missing bestWpm
+    // Migrate old players
     let needsSave = false;
     for (const p of Object.values(data.players || {})) {
-      if (p.bestWpm === undefined) {
-        p.bestWpm = 0;
-        p.bestDuration = null;
-        needsSave = true;
-      }
-      if (!p.badges) {
-        p.badges = {};
-        needsSave = true;
-      }
+      if (p.bestWpm === undefined) { p.bestWpm = 0; p.bestDuration = null; needsSave = true; }
+      if (!p.badges) { p.badges = {}; needsSave = true; }
+      if (p.coins === undefined) { p.coins = 0; needsSave = true; }
+      if (!p.pets) { p.pets = []; needsSave = true; }
+      if (p.activePet === undefined) { p.activePet = null; needsSave = true; }
     }
     if (needsSave) await save(data);
     return data.players || {};
@@ -77,6 +73,9 @@ const Storage = (() => {
       gamesPlayed: 0,
       totalWordsTyped: 0,
       badges: {},
+      coins: 0,
+      pets: [],
+      activePet: null,
       settings: { sound: true }
     };
     data.activePlayerId = id;
@@ -140,9 +139,14 @@ const Storage = (() => {
       player.bestDuration = result.duration;
       isPersonalBest = true;
     }
+
+    // Coin reward: game score = coins earned
+    const coinsEarned = result.score;
+    player.coins = (player.coins || 0) + coinsEarned;
+
     await save(data);
 
-    return { isPersonalBest, isGlobalRecord, newBadges };
+    return { isPersonalBest, isGlobalRecord, newBadges, coinsEarned };
   }
 
   async function getLeaderboard() {
@@ -174,6 +178,29 @@ const Storage = (() => {
     return player ? player.settings : { sound: true };
   }
 
+  async function buyPet(petId, price) {
+    const data = await load();
+    const player = data.players[data.activePlayerId];
+    if (!player) return { success: false };
+    if ((player.coins || 0) < price) return { success: false };
+    if ((player.pets || []).includes(petId)) return { success: false };
+    player.coins -= price;
+    if (!player.pets) player.pets = [];
+    player.pets.push(petId);
+    // Auto-equip if first pet
+    if (!player.activePet) player.activePet = petId;
+    await save(data);
+    return { success: true, coins: player.coins };
+  }
+
+  async function setActivePet(petId) {
+    const data = await load();
+    const player = data.players[data.activePlayerId];
+    if (!player || !(player.pets || []).includes(petId)) return;
+    player.activePet = petId;
+    await save(data);
+  }
+
   return {
     getPlayers,
     getActivePlayer,
@@ -184,6 +211,8 @@ const Storage = (() => {
     getLeaderboard,
     getPlayerHistory,
     updateSettings,
-    getSettings
+    getSettings,
+    buyPet,
+    setActivePet
   };
 })();

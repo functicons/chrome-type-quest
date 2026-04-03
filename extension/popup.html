@@ -96,6 +96,7 @@
         <button id="btn-badges" class="btn-icon btn-badge-icon" title="Badges"><span id="menu-badge-count">&#127941; 0</span></button>
       </div>
       <div class="header-actions">
+        <button id="btn-pet-shop" class="btn-icon" title="Pet Shop">&#128062;</button>
         <button id="btn-leaderboard" class="btn-icon" title="Leaderboard">&#127942;</button>
         <div class="theme-picker">
           <button id="btn-theme-toggle" class="theme-dot" title="Change theme"></button>
@@ -111,6 +112,7 @@
       </div>
     </div>
     <h1 class="title-bounce title-small">TYPE QUEST!</h1>
+    <div id="menu-active-pet" class="active-pet-badge hidden"></div>
     <div class="menu-best">
       <span class="best-label">Best WPM</span>
       <span class="best-score" id="menu-best-score">0</span>
@@ -240,8 +242,15 @@
       <span class="progress-label" id="progress-label"></span>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     </div>
+    <div id="gameover-coins" class="gameover-coins">
+      <span class="coins-earned-icon">&#129689;</span>
+      <span class="coins-earned-label">+</span>
+      <span id="coins-earned-value" class="coins-earned-value">0</span>
+      <span class="coins-earned-label">coins earned!</span>
+    </div>
     <div class="gameover-buttons">
       <button id="btn-play-again" class="btn btn-primary btn-bounce">Play Again</button>
+      <button id="btn-gameover-petshop" class="btn btn-pet-shop-go">&#128062; Pet Shop</button>
       <button id="btn-main-menu" class="btn btn-secondary">&#8962; Home</button>
     </div>
   </div>
@@ -265,6 +274,26 @@
     </div>
   </div>
 
+  <!-- PET SHOP SCREEN -->
+  <div id="screen-petstore" class="screen">
+    <div class="stars-bg"></div>
+    <div class="leaderboard-header">
+      <h2 class="leaderboard-title">&#128062; Pet Shop</h2>
+      <button id="btn-petstore-home" class="btn-icon btn-back" title="Home">&#8962;</button>
+    </div>
+    <div class="petstore-wallet">
+      <span class="wallet-icon">&#129689;</span>
+      <span id="petstore-coins" class="wallet-coins">0</span>
+      <span class="wallet-label">coins</span>
+      <span class="wallet-hint">(earn coins by playing!)</span>
+    </div>
+    <div class="petstore-tabs">
+      <button class="tab-btn active" data-pet-tab="shop">Shop</button>
+      <button class="tab-btn" data-pet-tab="owned">My Pets</button>
+    </div>
+    <div id="petstore-grid" class="petstore-grid"></div>
+  </div>
+
   <!-- BADGE SHOWCASE SCREEN -->
   <div id="screen-badges" class="screen">
     <div class="stars-bg"></div>
@@ -277,6 +306,7 @@
   </div>
 
   <script src="js/words.js"></script>
+  <script src="js/pets.js"></script>
   <script src="js/badges.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/particles.js"></script>

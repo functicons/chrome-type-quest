@@ -1342,12 +1342,49 @@ body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
 .stat-label { color: var(--text-dim); }
 .stat-value { font-weight: 700; color: var(--teal); }
 
+.gameover-coins {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 230, 109, 0.12);
+  border: 1px solid rgba(255, 230, 109, 0.25);
+  border-radius: 14px;
+  z-index: 1;
+  animation: coins-pop 0.6s ease-out 0.8s both;
+}
+
+.coins-earned-icon { font-size: 20px; }
+.coins-earned-value { font-size: 20px; font-weight: 900; color: var(--yellow); }
+.coins-earned-label { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+
+@keyframes coins-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .gameover-buttons {
   display: flex;
   gap: 12px;
   margin-top: 8px;
   z-index: 1;
 }
+
+.btn-pet-shop-go {
+  background: linear-gradient(135deg, #A855F7, #7c3aed);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.btn-pet-shop-go:hover:not(:disabled) { transform: scale(1.05); }
+.btn-pet-shop-go:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ===== LEADERBOARD ===== */
 #screen-leaderboard {
@@ -1472,6 +1509,185 @@ body.yellow-theme .theme-dropdown { box-shadow: 0 4px 16px rgba(100,70,0,0.1); }
   padding: 30px;
   color: var(--text-dim);
   font-size: 14px;
+}
+
+/* ===== PET SHOP ===== */
+.petstore-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  margin: 8px 0 10px;
+  z-index: 1;
+}
+
+.wallet-icon { font-size: 22px; }
+
+.wallet-coins {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--yellow);
+}
+
+.wallet-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.wallet-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: auto;
+  font-style: italic;
+}
+
+.petstore-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 4px;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+.petstore-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 16px;
+  z-index: 1;
+}
+
+.petstore-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pet-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 10px 12px;
+  background: var(--card);
+  border: 2px solid var(--card-border);
+  border-radius: 18px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.pet-card[data-rarity="rare"]      { border-color: rgba(92, 184, 255, 0.35); }
+.pet-card[data-rarity="epic"]      { border-color: rgba(168, 85, 247, 0.35); }
+.pet-card[data-rarity="legendary"] { border-color: rgba(255, 230, 109, 0.4); }
+
+.pet-card.pet-owned {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.pet-card.pet-locked .pet-emoji {
+  filter: grayscale(0.6) opacity(0.7);
+}
+
+.pet-emoji {
+  font-size: 40px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+.pet-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.pet-rarity {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+.pet-rarity[data-rarity="common"]    { color: #9ca3af; }
+.pet-rarity[data-rarity="rare"]      { color: #5CB8FF; background: rgba(92,184,255,0.12); }
+.pet-rarity[data-rarity="epic"]      { color: #A855F7; background: rgba(168,85,247,0.12); }
+.pet-rarity[data-rarity="legendary"] { color: #FFE66D; background: rgba(255,230,109,0.12); }
+
+.pet-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--yellow);
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--teal), #34D399);
+  color: #fff;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 2px;
+}
+
+.btn-buy:hover:not(:disabled) { transform: scale(1.05); }
+
+.btn-buy:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-buy.btn-owned {
+  background: linear-gradient(135deg, #34D399, #059669);
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.btn-buy.btn-equipped {
+  background: linear-gradient(135deg, #FFE66D, #f59e0b);
+  color: #1a1136;
+  opacity: 1;
+}
+
+.pet-card.pet-active {
+  border-color: rgba(255, 230, 109, 0.6);
+  background: rgba(255, 230, 109, 0.1);
+  box-shadow: 0 0 16px rgba(255, 230, 109, 0.15);
+}
+
+/* Active pet badge on menu */
+.active-pet-badge {
+  font-size: 28px;
+  margin: -4px 0 -2px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  animation: pet-bounce 2s ease-in-out infinite;
+}
+
+@keyframes pet-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
 }
 
 /* ===== BADGE SHOWCASE ===== */

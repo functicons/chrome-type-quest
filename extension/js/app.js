@@ -126,6 +126,8 @@ const App = (() => {
     const player = await Storage.getActivePlayer();
     const totalBadges = Badges.getTotalBadges();
 
+    const petEl = document.getElementById('menu-active-pet');
+
     if (player) {
       document.getElementById('menu-avatar').style.background = player.color;
       document.getElementById('menu-emoji').textContent = player.emoji || '🚀';
@@ -135,6 +137,20 @@ const App = (() => {
       document.getElementById('menu-badge-count').textContent = '🏅 ' + badgeCount + '/' + totalBadges;
       const settings = await Storage.getSettings();
       applyTheme(settings.theme || 'dark');
+
+      // Show active pet buddy
+      if (player.activePet) {
+        const pet = PETS.find(p => p.id === player.activePet);
+        if (pet) {
+          petEl.textContent = pet.emoji;
+          petEl.title = pet.name + ' (your buddy)';
+          petEl.classList.remove('hidden');
+        } else {
+          petEl.classList.add('hidden');
+        }
+      } else {
+        petEl.classList.add('hidden');
+      }
     } else {
       // No player yet — show guest defaults
       document.getElementById('menu-avatar').style.background = '#5CB8FF';
@@ -142,6 +158,7 @@ const App = (() => {
       document.getElementById('menu-player-name').textContent = 'New Player';
       document.getElementById('menu-best-score').textContent = '0';
       document.getElementById('menu-badge-count').textContent = '🏅 0/' + totalBadges;
+      petEl.classList.add('hidden');
       applyTheme('dark');
     }
 
@@ -363,7 +380,15 @@ const App = (() => {
     document.getElementById('progress-fill').style.width = '0%';
 
     const saveResult = await Storage.saveGameResult(result);
-    const { isPersonalBest, isGlobalRecord, newBadges } = saveResult;
+    const { isPersonalBest, isGlobalRecord, newBadges, coinsEarned } = saveResult;
+
+    // Show coins earned
+    document.getElementById('coins-earned-value').textContent = coinsEarned.toLocaleString();
+
+    // Enable pet shop button (one visit per game)
+    const petBtn = document.getElementById('btn-gameover-petshop');
+    petBtn.disabled = false;
+    petBtn.textContent = '\uD83D\uDC3E Pet Shop';
 
     // Title
     const title = document.getElementById('gameover-title');
@@ -519,6 +544,99 @@ const App = (() => {
       section.appendChild(grid);
       showcase.appendChild(section);
     }
+  }
+
+  // === PET SHOP ===
+  let petStoreReturnScreen = 'menu'; // where the back button goes
+
+  async function showPetStore(fromScreen) {
+    if (fromScreen) petStoreReturnScreen = fromScreen;
+    else if (currentScreen === 'gameover') petStoreReturnScreen = 'gameover';
+    else petStoreReturnScreen = 'menu';
+
+    showScreen('petstore');
+    await refreshPetStore();
+  }
+
+  async function refreshPetStore() {
+    const player = await Storage.getActivePlayer();
+    const coins   = player ? (player.coins || 0) : 0;
+    const owned   = player ? (player.pets  || []) : [];
+    const active  = player ? (player.activePet || null) : null;
+
+    document.getElementById('petstore-coins').textContent = coins.toLocaleString();
+
+    const activeTab = document.querySelector('#screen-petstore .tab-btn.active');
+    const tab = activeTab ? activeTab.dataset.petTab : 'shop';
+    renderPetGrid(tab, owned, coins, active);
+  }
+
+  function renderPetGrid(tab, owned, coins, activePetId) {
+    const grid = document.getElementById('petstore-grid');
+    grid.innerHTML = '';
+
+    const list = tab === 'owned' ? PETS.filter(p => owned.includes(p.id)) : PETS;
+
+    if (list.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'petstore-empty';
+      empty.textContent = 'No pets yet — play games to earn coins!';
+      grid.appendChild(empty);
+      return;
+    }
+
+    list.forEach(pet => {
+      const isOwned   = owned.includes(pet.id);
+      const isActive  = activePetId === pet.id;
+      const canAfford = coins >= pet.price;
+      const cfg       = RARITY_CONFIG[pet.rarity];
+
+      const card = document.createElement('div');
+      card.className = 'pet-card' + (isOwned ? ' pet-owned' : canAfford ? '' : ' pet-locked');
+      if (isActive) card.classList.add('pet-active');
+      card.dataset.rarity = pet.rarity;
+
+      let btnHtml;
+      if (isActive) {
+        btnHtml = `<button class="btn-buy btn-equipped" disabled>★ Buddy</button>`;
+      } else if (isOwned) {
+        btnHtml = `<button class="btn-buy btn-owned" data-equip="${pet.id}">Set as Buddy</button>`;
+      } else if (canAfford) {
+        btnHtml = `<button class="btn-buy" data-buy="${pet.id}" data-price="${pet.price}">Buy</button>`;
+      } else {
+        btnHtml = `<button class="btn-buy" disabled>Not enough coins</button>`;
+      }
+
+      card.innerHTML = `
+        <div class="pet-emoji">${pet.emoji}</div>
+        <div class="pet-name">${pet.name}</div>
+        <div class="pet-rarity" data-rarity="${pet.rarity}">${cfg.label}</div>
+        <div class="pet-price">&#129689; ${pet.price.toLocaleString()}</div>
+        ${btnHtml}`;
+
+      // Buy handler
+      const buyBtn = card.querySelector('[data-buy]');
+      if (buyBtn) {
+        buyBtn.addEventListener('click', async () => {
+          const res = await Storage.buyPet(pet.id, pet.price);
+          if (res.success) {
+            Sounds.play('correct');
+            await refreshPetStore();
+          }
+        });
+      }
+
+      // Equip handler
+      const equipBtn = card.querySelector('[data-equip]');
+      if (equipBtn) {
+        equipBtn.addEventListener('click', async () => {
+          await Storage.setActivePet(pet.id);
+          await refreshPetStore();
+        });
+      }
+
+      grid.appendChild(card);
+    });
   }
 
   // === LEADERBOARD ===
@@ -712,11 +830,34 @@ const App = (() => {
     document.getElementById('btn-badges').addEventListener('click', showBadgeShowcase);
     document.getElementById('btn-badges-home').addEventListener('click', showMenu);
 
-    // Leaderboard tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    // Pet shop (from menu)
+    document.getElementById('btn-pet-shop').addEventListener('click', () => showPetStore('menu'));
+    document.getElementById('btn-petstore-home').addEventListener('click', () => {
+      if (petStoreReturnScreen === 'gameover') showScreen('gameover');
+      else showMenu();
+    });
+
+    // Pet store tabs
+    document.querySelectorAll('#screen-petstore .tab-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        document.querySelectorAll('#screen-petstore .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        await refreshPetStore();
+      });
+    });
+
+    // Pet shop (from game over — one visit per game)
+    document.getElementById('btn-gameover-petshop').addEventListener('click', () => {
+      document.getElementById('btn-gameover-petshop').disabled = true;
+      document.getElementById('btn-gameover-petshop').textContent = 'Visited ✓';
+      showPetStore();
+    });
+
+    // Leaderboard tabs (scoped to leaderboard screen only)
+    document.querySelectorAll('#screen-leaderboard .tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('#screen-leaderboard .tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#screen-leaderboard .tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
       });
