@@ -140,8 +140,11 @@ const Storage = (() => {
       isPersonalBest = true;
     }
 
-    // Coin reward: game score = coins earned
-    const coinsEarned = result.score;
+    // Coins: only earned by breaking your own WPM record
+    let coinsEarned = 0;
+    if (isPersonalBest) {
+      coinsEarned = result.wpm * 10;
+    }
     player.coins = (player.coins || 0) + coinsEarned;
 
     await save(data);
