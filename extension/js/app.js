@@ -13,6 +13,21 @@ const App = (() => {
     detectMode();
     setupParticles();
     setupEventListeners();
+
+    // Auto-start game when opened with ?autostart=1 (from popup Start Game)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autostart') === '1' && isTabMode) {
+      const player = await Storage.getActivePlayer();
+      if (player) {
+        if (params.get('duration')) lastDuration = parseInt(params.get('duration'), 10);
+        if (params.get('difficulty')) selectedDifficulty = params.get('difficulty');
+        if (params.get('speed')) selectedSpeed = params.get('speed');
+        const settings = await Storage.getSettings();
+        applyTheme(settings.theme || 'dark');
+        startGame(lastDuration);
+        return;
+      }
+    }
     await showMenu();
   }
 
@@ -825,6 +840,20 @@ const App = (() => {
 
     // Start game button
     document.getElementById('btn-start-game').addEventListener('click', async () => {
+      // In popup mode, open in a new tab and auto-start there
+      if (!isTabMode) {
+        const qs = `?mode=tab&autostart=1&duration=${lastDuration}&difficulty=${selectedDifficulty}&speed=${selectedSpeed}`;
+        const url = chrome.runtime?.getURL
+          ? chrome.runtime.getURL('popup.html' + qs)
+          : window.location.origin + '/popup.html' + qs;
+        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+          chrome.tabs.create({ url });
+          window.close();
+        } else {
+          window.open(url, '_blank');
+        }
+        return;
+      }
       const player = await Storage.getActivePlayer();
       if (!player) {
         await loadWelcomeScreen();
@@ -944,7 +973,7 @@ const App = (() => {
         : window.location.origin + '/popup.html?mode=tab';
       if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
         chrome.tabs.create({ url });
-        window.close(); // close the popup
+        window.close();
       } else {
         window.open(url, '_blank');
       }
