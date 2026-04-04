@@ -88,10 +88,13 @@ class Game {
 
     let word;
     let attempts = 0;
+    const hasSharedPrefix = (w) => {
+      return this.words.some(active => w[0] === active.text[0]);
+    };
     do {
       word = getRandomWord(this.difficulty);
       attempts++;
-    } while (this.usedWords.has(word) && attempts < 30);
+    } while ((this.usedWords.has(word) || hasSharedPrefix(word)) && attempts < 50);
 
     this.usedWords.add(word);
     if (this.usedWords.size > 40) {
